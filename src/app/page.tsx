@@ -23,15 +23,13 @@ export default function Home() {
       setLogo(data.logo);
     } catch (error) {
       console.error("Error generating logo:", error);
-      toast.error("Pahinga ka muna");
+      toast.error("OpenAI Not yet setup");
     }
   };
 
   return (
     <div className="flex flex-col items-center p-8">
-      <h1 className="text-3xl font-bold mb-4 text-zinc-50">
-        Sketch to Logo AI
-      </h1>
+      <h1 className="text-3xl font-bold mb-4 text-zinc-50">KAHIT ANO</h1>
       <SketchCanvas onGenerate={handleGenerate} />
       {logo && (
         <div className="mt-4">
