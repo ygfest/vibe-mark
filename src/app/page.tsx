@@ -1,23 +1,37 @@
 "use client";
 import { useState } from "react";
 import SketchCanvas from "./components/SketchCanvas";
+import { toast } from "react-hot-toast";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
 
   const handleGenerate = async (sketch: string) => {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      body: JSON.stringify({ sketch }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await res.json();
-    setLogo(data.logo);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        body: JSON.stringify({ sketch }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to generate logo");
+      }
+
+      const data = await res.json();
+      setLogo(data.logo);
+    } catch (error) {
+      console.error("Error generating logo:", error);
+      toast.error("Pahinga ka muna");
+    }
   };
 
   return (
     <div className="flex flex-col items-center p-8">
-      <h1 className="text-3xl font-bold mb-4">Sketch to Logo AI</h1>
+      <h1 className="text-3xl font-bold mb-4 text-zinc-50">
+        Sketch to Logo AI
+      </h1>
       <SketchCanvas onGenerate={handleGenerate} />
       {logo && (
         <div className="mt-4">

@@ -1,22 +1,34 @@
 "use client";
 import { useState } from "react";
-
+import { LoaderCircle } from "lucide-react";
+import { toast } from "react-hot-toast";
 export default function InputForm({
   setGeneratedImage,
 }: {
   setGeneratedImage: (url: string) => void;
 }) {
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateLogo = async () => {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      body: JSON.stringify({ textPrompt: input }),
-      headers: { "Content-Type": "application/json" },
-    });
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        body: JSON.stringify({ textPrompt: input }),
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const data = await res.json();
-    if (data.image) setGeneratedImage(data.image);
+      const data = await res.json();
+      if (data.image) setGeneratedImage(data.image);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+      toast.error("Error generating logo");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,8 +43,13 @@ export default function InputForm({
       <button
         className="bg-blue-500 text-white px-4 py-2 mt-2 rounded"
         onClick={generateLogo}
+        disabled={isLoading}
       >
-        Generate Logo
+        {isLoading ? (
+          <LoaderCircle className="animate-spin" />
+        ) : (
+          "Generate Logo"
+        )}
       </button>
     </div>
   );

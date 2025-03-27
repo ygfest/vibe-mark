@@ -24,13 +24,20 @@ export const generateLogo = async (base64Sketch: string) => {
       { inlineData: { data: base64Sketch, mimeType: "image/png" } },
     ] as Part[]);
 
-    // this is the extract AI-generated image
-    const candidates = result.response.candidates;
-    for (const candidate of candidates || []) {
-      for (const part of candidate.content.parts) {
-        if (part.inlineData) {
-          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        }
+    // Extract the generated image from the response
+    const response = result.response;
+    if (!response || !response.candidates || response.candidates.length === 0) {
+      throw new Error("No response from AI");
+    }
+
+    const candidate = response.candidates[0];
+    if (!candidate?.content?.parts) {
+      throw new Error("Invalid response structure");
+    }
+
+    for (const part of candidate.content.parts) {
+      if (part.inlineData) {
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
       }
     }
 
