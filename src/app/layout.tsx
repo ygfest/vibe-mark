@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@tldraw/tldraw/tldraw.css";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -38,7 +38,23 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ThemeToggle />
-          <ToastContainer position="top-right" />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              success: {
+                style: {
+                  background: "green",
+                  color: "white",
+                },
+              },
+              error: {
+                style: {
+                  background: "red",
+                  color: "white",
+                },
+              },
+            }}
+          />
           <main>{children}</main>
         </ThemeProvider>
       </body>

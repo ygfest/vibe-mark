@@ -4,6 +4,7 @@ import DrawingCanvas from "./components/DrawingCanvas";
 import { toast } from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sliders } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export default function Home() {
     <div className="flex flex-col items-center p-8 min-h-screen">
       <div className="w-full max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-foreground text-center">
-          Logo Generator
+          Prosperna GenAI
         </h1>
 
         <Tabs defaultValue="draw" className="w-full">
@@ -86,28 +87,35 @@ export default function Home() {
             className="p-6 bg-card rounded-lg border border-border"
           >
             <h2 className="text-xl font-semibold mb-6 text-card-foreground">
-              Color Settings
+              Settings
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
-                  Primary Color
-                </label>
-                <input
-                  type="color"
-                  className="w-full h-12 rounded-lg cursor-pointer bg-background border border-border p-1"
-                  defaultValue="#000000"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-2">
-                  Background Color
-                </label>
-                <input
-                  type="color"
-                  className="w-full h-12 rounded-lg cursor-pointer bg-background border border-border p-1"
-                  defaultValue="#ffffff"
-                />
+                <h3 className="text-lg font-medium mb-4 text-card-foreground">
+                  Color Settings
+                </h3>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Primary Color
+                    </label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer bg-background border border-border p-1"
+                      defaultValue="#000000"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                      Background Color
+                    </label>
+                    <input
+                      type="color"
+                      className="w-full h-12 rounded-lg cursor-pointer bg-background border border-border p-1"
+                      defaultValue="#ffffff"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </TabsContent>

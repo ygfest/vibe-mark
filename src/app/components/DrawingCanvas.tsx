@@ -3,6 +3,7 @@
 import { Tldraw } from "@tldraw/tldraw";
 import { useCallback, useRef } from "react";
 import { blobToBase64 } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface DrawingCanvasProps {
   onGenerate: (sketch: string) => void;
@@ -18,30 +19,20 @@ export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
       // Get all shapes
       const shapes = editorRef.current.getCurrentPageShapes();
       if (shapes.length === 0) {
+        toast.error("Please draw something first");
         throw new Error("Please draw something first.");
       }
 
-      // Get an SVG of the entire page
-      const svg = await editorRef.current.getSvg(shapes, {
-        scale: 1,
+      // Export as PNG blob
+      const blob = await editorRef.current.exportImage({
+        format: "png",
+        quality: 1,
+        scale: 2,
         background: true,
       });
 
-      if (!svg) {
-        throw new Error("Could not generate SVG.");
-      }
-
-      // Convert SVG to PNG
-      const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(
-        navigator.userAgent
-      );
-      const blob = await editorRef.current.getSvgAsImage(svg, IS_SAFARI, {
-        type: "png",
-        quality: 0.8,
-        scale: 1,
-      });
-
       if (!blob) {
+        toast.error("Please Give me an OPENAI API KEY. I'm broke");
         throw new Error("Could not generate image.");
       }
 
@@ -63,7 +54,7 @@ export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
       </div>
       <button
         onClick={handleGenerate}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
+        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors"
       >
         Generate Logo
       </button>
