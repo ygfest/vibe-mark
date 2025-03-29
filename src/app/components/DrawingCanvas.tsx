@@ -4,12 +4,17 @@ import { Tldraw, Editor } from "@tldraw/tldraw";
 import { useCallback, useRef } from "react";
 import { blobToBase64 } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { LoaderCircle } from "lucide-react";
 
 interface DrawingCanvasProps {
   onGenerate: (sketch: string) => void;
+  isGenerating: boolean;
 }
 
-export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
+export default function DrawingCanvas({
+  onGenerate,
+  isGenerating,
+}: DrawingCanvasProps) {
   const editorRef = useRef<Editor | null>(null);
 
   const handleGenerate = useCallback(async () => {
@@ -79,9 +84,13 @@ export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
       </div>
       <button
         onClick={handleGenerate}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors"
+        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
       >
-        Generate Logo
+        {isGenerating ? (
+          <LoaderCircle className="animate-spin" />
+        ) : (
+          "Generate Logo"
+        )}
       </button>
     </div>
   );

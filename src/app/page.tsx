@@ -4,7 +4,6 @@ import DrawingCanvas from "./components/DrawingCanvas";
 import { toast } from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sliders } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
@@ -38,8 +37,8 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center p-8 min-h-screen">
       <div className="w-full max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8 text-foreground text-center">
-          Prosperna GenAI
+        <h1 className="text-2xl font-bold mb-8 text-foreground text-center">
+          Rough Sketch to Pro logos in Seconds
         </h1>
 
         <Tabs defaultValue="draw" className="w-full">
@@ -60,7 +59,10 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="draw" className="space-y-4">
-            <DrawingCanvas onGenerate={handleGenerate} />
+            <DrawingCanvas
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+            />
             {logo && (
               <div className="mt-4 p-6 bg-card rounded-lg border border-border">
                 <h2 className="text-xl font-semibold mb-4 text-card-foreground">
