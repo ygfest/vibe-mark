@@ -20,6 +20,7 @@ export default function Home() {
 
       if (!res.ok) {
         const errorData = await res.json();
+        toast.error("Failed to generate logo");
         throw new Error(errorData.error || "Failed to generate logo");
       }
 
