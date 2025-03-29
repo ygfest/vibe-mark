@@ -8,11 +8,11 @@ export const generateLogo = async (base64Sketch: string) => {
   });
 
   const generationConfig = {
-    temperature: 1,
+    temperature: 0.7,
     topP: 0.95,
     topK: 40,
-    maxOutputTokens: 8192,
-    responseModalities: ["image"],
+    maxOutputTokens: 2048,
+    responseModalities: ["Text", "Image"],
   };
 
   try {
@@ -20,7 +20,9 @@ export const generateLogo = async (base64Sketch: string) => {
 
     // this is the prompt and the sketch
     const result = await chatSession.sendMessage([
-      { text: "Generate a professional logo based on this sketch." },
+      {
+        text: "Convert this rough sketch into a professional logo. Include only the logo in the image, with nothing else.",
+      },
       { inlineData: { data: base64Sketch, mimeType: "image/png" } },
     ] as Part[]);
 

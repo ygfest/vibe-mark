@@ -1,6 +1,6 @@
 "use client";
 
-import { Tldraw } from "@tldraw/tldraw";
+import { Tldraw, Editor } from "@tldraw/tldraw";
 import { useCallback, useRef } from "react";
 import { blobToBase64 } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -10,7 +10,7 @@ interface DrawingCanvasProps {
 }
 
 export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   const handleGenerate = useCallback(async () => {
     if (!editorRef.current) return;
@@ -23,17 +23,42 @@ export default function DrawingCanvas({ onGenerate }: DrawingCanvasProps) {
         throw new Error("Please draw something first.");
       }
 
-      // Export as PNG blob
-      const blob = await editorRef.current.exportImage({
-        format: "png",
-        quality: 1,
-        scale: 2,
+      // Get SVG of the current page
+      const svg = await editorRef.current.getSvg(shapes, {
+        scale: 1,
         background: true,
       });
 
+      if (!svg) {
+        toast.error("Could not generate SVG from drawing");
+        throw new Error("Could not generate SVG from drawing.");
+      }
+
+      // Convert SVG to PNG blob
+      const svgString = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      const blob = await new Promise<Blob>((resolve) => {
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx?.drawImage(img, 0, 0);
+          canvas.toBlob(
+            (blob) => {
+              if (blob) resolve(blob);
+            },
+            "image/png",
+            0.8
+          );
+        };
+        img.src = "data:image/svg+xml;base64," + btoa(svgString);
+      });
+
       if (!blob) {
-        toast.error("Please Give me an OPENAI API KEY. I'm broke");
-        throw new Error("Could not generate image.");
+        toast.error("Could not generate image from drawing");
+        throw new Error("Could not generate image from drawing.");
       }
 
       const base64Data = await blobToBase64(blob);
