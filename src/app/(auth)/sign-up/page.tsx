@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
 
 export default function SignUp() {
   const router = useRouter();
@@ -196,7 +197,7 @@ export default function SignUp() {
           onClick={() => signIn("google", { callbackUrl: "/" })}
           className="w-full flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-4 py-2 rounded-md hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
         >
-          <Image src="/google.svg" alt="Google" width={20} height={20} />
+          <FcGoogle size={20} />
           Continue with Google
         </button>
 
