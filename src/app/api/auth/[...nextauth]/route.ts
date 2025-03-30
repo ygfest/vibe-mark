@@ -31,7 +31,6 @@ export const authOptions: NextAuthOptions = {
           id: profile.sub,
           firstName,
           lastName,
-          name: profile.name,
           email: profile.email,
           image: profile.picture,
           emailVerified: profile.email_verified
@@ -48,6 +47,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }: { session: ExtendedSession; user: any }) {
       if (session.user) {
         session.user.id = user.id;
+        // Add firstName and lastName to the session
+        session.user.name = `${user.firstName || ""} ${
+          user.lastName || ""
+        }`.trim();
       }
       return session;
     },

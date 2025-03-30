@@ -9,23 +9,33 @@ export default withAuth(
     const isAuthPage =
       req.nextUrl.pathname.startsWith("/sign-in") ||
       req.nextUrl.pathname.startsWith("/sign-up");
+    const isAuthApi = req.nextUrl.pathname.startsWith("/api/auth");
 
-    if (isAuthPage) {
-      if (isAuth) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
+    // Allow all auth-related API routes to pass through
+    if (isAuthApi) {
       return null;
     }
 
-    if (!isAuth) {
-      let from = req.nextUrl.pathname;
-      if (req.nextUrl.search) {
-        from += req.nextUrl.search;
+    if (isAuthPage) {
+      if (isAuth) {
+        // If user is authenticated and tries to access auth pages, redirect to home
+        return NextResponse.redirect(new URL("/", req.url));
       }
+      // Allow unauthenticated users to access auth pages
+      return null;
+    }
+
+    // For protected routes
+    if (!isAuth) {
+      // Store the original URL as the callback URL
+      const from = req.nextUrl.pathname + req.nextUrl.search;
       return NextResponse.redirect(
         new URL(`/sign-in?callbackUrl=${encodeURIComponent(from)}`, req.url)
       );
     }
+
+    // Allow authenticated users to access protected routes
+    return null;
   },
   {
     callbacks: {
@@ -36,9 +46,14 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/",
-    "/sign-in",
-    "/sign-up",
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (auth API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };
