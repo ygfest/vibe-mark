@@ -5,6 +5,7 @@ import "@tldraw/tldraw/tldraw.css";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { QueryProvider } from "@/components/providers/query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,40 +24,40 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ThemeToggle />
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              success: {
-                style: {
-                  background: "green",
-                  color: "white",
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <ThemeToggle />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                success: {
+                  style: {
+                    background: "green",
+                    color: "white",
+                  },
                 },
-              },
-              error: {
-                style: {
-                  background: "red",
-                  color: "white",
+                error: {
+                  style: {
+                    background: "red",
+                    color: "white",
+                  },
                 },
-              },
-            }}
-          />
-          <main>{children}</main>
-        </ThemeProvider>
+              }}
+            />
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

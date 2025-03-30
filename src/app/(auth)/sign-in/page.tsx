@@ -4,33 +4,28 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSignIn } from "@/lib/auth";
+import { toast } from "react-hot-toast";
 
 export default function SignIn() {
   const router = useRouter();
+  const { mutate: signInMutation, isPending } = useSignIn();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Invalid credentials");
-        return;
-      }
-
-      router.push("/");
-    } catch (error) {
-      setError("Something went wrong");
-    }
+    signInMutation(formData, {
+      onSuccess: () => {
+        router.push("/");
+        toast.success("Signed in successfully");
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
 
   return (
@@ -84,13 +79,12 @@ export default function SignIn() {
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
           <button
             type="submit"
-            className="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            disabled={isPending}
+            className="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
-            Sign In
+            {isPending ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
