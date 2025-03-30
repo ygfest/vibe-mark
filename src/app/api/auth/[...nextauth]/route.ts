@@ -21,6 +21,24 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      profile(profile) {
+        // Split the name into first and last name
+        const nameParts = profile.name?.split(" ") || ["", ""];
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(" ");
+
+        return {
+          id: profile.sub,
+          firstName,
+          lastName,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          emailVerified: profile.email_verified
+            ? new Date().toISOString()
+            : null,
+        };
+      },
     }),
   ],
   pages: {
