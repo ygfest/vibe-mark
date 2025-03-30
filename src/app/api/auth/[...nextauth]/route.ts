@@ -1,9 +1,21 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
-export const authOptions = {
+// Extend the built-in session types
+interface ExtendedSession extends Session {
+  user?: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+}
+
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -13,6 +25,24 @@ export const authOptions = {
   ],
   pages: {
     signIn: "/sign-in",
+  },
+  callbacks: {
+    async session({ session, user }: { session: ExtendedSession; user: any }) {
+      if (session.user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+  },
+  session: {
+    strategy: "database" as const,
   },
 };
 
