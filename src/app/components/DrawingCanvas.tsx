@@ -85,9 +85,13 @@ export default function DrawingCanvas({
       <button
         onClick={handleGenerate}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
+        disabled={isGenerating}
       >
         {isGenerating ? (
-          <LoaderCircle className="animate-spin" />
+          <>
+            <LoaderCircle className="animate-spin mr-2" />{" "}
+            <span>Generating...</span>
+          </>
         ) : (
           "Generate Logo"
         )}
