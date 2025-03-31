@@ -67,22 +67,6 @@ export const useSignUp = () => {
   });
 };
 
-export const useSignIn = () => {
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: signInWithCredentials,
-    mutationKey: ["signin"],
-    onSuccess: () => {
-      router.push("/"); // Redirect to dashboard after successful signin
-    },
-    onError: (error: Error) => {
-      // You might want to show a toast notification here
-      console.error("Signin error:", error.message);
-    },
-  });
-};
-
 export const useSignOut = () => {
   const router = useRouter();
 

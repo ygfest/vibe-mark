@@ -2,10 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useSignIn } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
-import { FormEventHandler, useState } from "react";
+import { FormEvent, useState } from "react";
 
 export default function SignIn() {
   const router = useRouter();
@@ -13,24 +12,32 @@ export default function SignIn() {
     email: "",
     password: "",
   });
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const { mutate: signInMutation, isPending } = useSignIn();
-
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submitting credentials:", credentials);
+    setIsSigningIn(true);
 
-    signInMutation(credentials, {
-      onSuccess: (result) => {
-        console.log("Sign-in successful, result:", result);
-        router.push("/");
-        toast.success("Signed in successfully");
-      },
-      onError: (error) => {
-        console.error("Sign-in error:", error);
-        toast.error(error.message);
-      },
-    });
+    try {
+      const res = await signIn("credentials", {
+        email: credentials.email,
+        password: credentials.password,
+        redirect: false,
+      });
+
+      if (!res?.ok) {
+        toast.error("Invalid Credentials");
+        setIsSigningIn(false);
+        return;
+      }
+
+      toast.success("Login Successful");
+      router.push("/");
+    } catch (error) {
+      console.error("Sign-in error:", error);
+      toast.error("An error has occurred");
+      setIsSigningIn(false);
+    }
   };
 
   const handleGoogleSignIn = () => signIn("google", { callbackUrl: "/" });
@@ -52,7 +59,7 @@ export default function SignIn() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSignIn} className="space-y-4">
           {["email", "password"].map((field) => (
             <div key={field}>
               <label
@@ -74,10 +81,10 @@ export default function SignIn() {
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isSigningIn}
             className="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
-            {isPending ? "Signing in..." : "Sign In"}
+            {isSigningIn ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
