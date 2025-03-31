@@ -3,8 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { Session } from "next-auth";
-import { JWT } from "next-auth/jwt";
-
+import { Asap_Condensed } from "next/font/google";
 // Extend the built-in session types
 interface ExtendedSession extends Session {
   user?: {

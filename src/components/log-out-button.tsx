@@ -3,7 +3,6 @@
 import { signOut } from "next-auth/react";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 
 function LogOutButton() {
