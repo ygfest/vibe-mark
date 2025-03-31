@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { QueryProvider } from "@/components/providers/query-provider";
+import LogOutButton from "@/components/log-out-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Logo Generator",
+  title: "Vibe Mark",
   description: "AI-powered logo generator from sketches",
 };
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           >
             {children}
             <ThemeToggle />
+
             <Toaster
               position="top-right"
               toastOptions={{

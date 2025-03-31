@@ -1,32 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useSignIn } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
+import { FormEventHandler, useState } from "react";
 
 export default function SignIn() {
   const router = useRouter();
-  const { mutate: signInMutation, isPending } = useSignIn();
-  const [formData, setFormData] = useState({
+  const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate: signInMutation, isPending } = useSignIn();
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    signInMutation(formData, {
-      onSuccess: () => {
+    console.log("Submitting credentials:", credentials);
+
+    signInMutation(credentials, {
+      onSuccess: (result) => {
+        console.log("Sign-in successful, result:", result);
         router.push("/");
         toast.success("Signed in successfully");
       },
       onError: (error) => {
+        console.error("Sign-in error:", error);
         toast.error(error.message);
       },
     });
+  };
+
+  const handleGoogleSignIn = () => signIn("google", { callbackUrl: "/" });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setCredentials((prev) => ({ ...prev, [id]: value }));
   };
 
   return (
@@ -42,43 +53,24 @@ export default function SignIn() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white bg-white dark:bg-black text-black dark:text-white"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white bg-white dark:bg-black text-black dark:text-white"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
-          </div>
+          {["email", "password"].map((field) => (
+            <div key={field}>
+              <label
+                htmlFor={field}
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                {field.charAt(0).toUpperCase() + field.slice(1)}
+              </label>
+              <input
+                id={field}
+                type={field === "password" ? "password" : "email"}
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-black dark:focus:ring-white focus:border-black dark:focus:border-white bg-white dark:bg-black text-black dark:text-white"
+                value={credentials[field as keyof typeof credentials]}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
 
           <button
             type="submit"
@@ -89,19 +81,10 @@ export default function SignIn() {
           </button>
         </form>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white dark:bg-black text-gray-500">
-              Or continue with
-            </span>
-          </div>
-        </div>
+        <Divider text="Or continue with" />
 
         <button
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-4 py-2 rounded-md hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
         >
           <FcGoogle size={20} />
@@ -117,6 +100,22 @@ export default function SignIn() {
             Sign up
           </a>
         </p>
+      </div>
+    </div>
+  );
+}
+
+// Extracted component for better readability
+function Divider({ text }: { text: string }) {
+  return (
+    <div className="relative">
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
+      </div>
+      <div className="relative flex justify-center text-sm">
+        <span className="px-2 bg-white dark:bg-black text-gray-500">
+          {text}
+        </span>
       </div>
     </div>
   );

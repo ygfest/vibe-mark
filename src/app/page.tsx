@@ -3,7 +3,8 @@ import { useState } from "react";
 import DrawingCanvas from "./components/DrawingCanvas";
 import { toast } from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sliders } from "lucide-react";
+import { LogOut, Sliders } from "lucide-react";
+import LogOutButton from "@/components/log-out-button";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center p-8 min-h-screen">
+      <LogOutButton />
       <div className="w-full max-w-4xl">
         <h1 className="text-2xl font-bold mb-8 text-foreground text-center">
           Rough Sketch to Pro logos in Seconds

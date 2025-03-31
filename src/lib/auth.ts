@@ -1,5 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { signIn, signOut } from "next-auth/react";
+import { useMutation } from "@tanstack/react-query";
+import { signIn, signOut, SignInResponse } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface SignUpData {
   firstName: string;
@@ -29,14 +30,20 @@ const signUp = async (data: SignUpData) => {
   return response.json();
 };
 
-const signInWithCredentials = async (data: SignInData) => {
+const signInWithCredentials = async (
+  data: SignInData
+): Promise<SignInResponse> => {
   const result = await signIn("credentials", {
     email: data.email,
     password: data.password,
     redirect: false,
   });
 
-  if (result?.error) {
+  if (!result) {
+    throw new Error("No response from sign in");
+  }
+
+  if (result.error) {
     throw new Error(result.error);
   }
 
@@ -45,25 +52,45 @@ const signInWithCredentials = async (data: SignInData) => {
 
 // React Query hooks
 export const useSignUp = () => {
+  const router = useRouter();
+
   return useMutation({
     mutationFn: signUp,
+    mutationKey: ["signup"],
     onSuccess: () => {
-      // Handle successful signup
+      router.push("/"); // Redirect to login after successful signup
+    },
+    onError: (error: Error) => {
+      // You might want to show a toast notification here
+      console.error("Signup error:", error.message);
     },
   });
 };
 
 export const useSignIn = () => {
+  const router = useRouter();
+
   return useMutation({
     mutationFn: signInWithCredentials,
+    mutationKey: ["signin"],
     onSuccess: () => {
-      // Handle successful signin
+      router.push("/"); // Redirect to dashboard after successful signin
+    },
+    onError: (error: Error) => {
+      // You might want to show a toast notification here
+      console.error("Signin error:", error.message);
     },
   });
 };
 
 export const useSignOut = () => {
+  const router = useRouter();
+
   return useMutation({
-    mutationFn: () => signOut(),
+    mutationFn: () => signOut({ redirect: false }),
+    mutationKey: ["signout"],
+    onSuccess: () => {
+      router.push("/sign-in"); // Redirect to login after signout
+    },
   });
 };
