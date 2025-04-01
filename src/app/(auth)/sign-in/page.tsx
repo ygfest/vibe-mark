@@ -13,6 +13,7 @@ export default function SignIn() {
     password: "",
   });
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +41,12 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleSignIn = () => signIn("google", { callbackUrl: "/" });
+  const handleGoogleSignIn = () => {
+    setIsGoogleSigningIn(true);
+    signIn("google", { callbackUrl: "/" }).finally(() =>
+      setIsGoogleSigningIn(false)
+    );
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -101,8 +107,12 @@ export default function SignIn() {
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-4 py-2 rounded-md hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
         >
-          <FcGoogle size={20} />
-          Continue with Google
+          {isGoogleSigningIn ? (
+            <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+          ) : (
+            <FcGoogle size={20} />
+          )}
+          {isGoogleSigningIn ? "Signing in..." : "Sign in with Google"}
         </button>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">

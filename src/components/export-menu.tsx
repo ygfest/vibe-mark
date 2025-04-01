@@ -6,9 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import { useTheme } from "next-themes";
 
 const fileFormats = [
   { name: "SVG", extension: "svg" },
@@ -22,8 +20,6 @@ interface ExportMenuProps {
 }
 
 export default function ExportMenu({ imageUrl }: ExportMenuProps) {
-  const { theme } = useTheme();
-
   const handleExport = (extension: string) => {
     // For now, just download as is, but in the future could convert formats server-side
     const a = document.createElement("a");

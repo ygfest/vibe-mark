@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { Loader2 } from "lucide-react";
 
 export default function SignUp() {
   const router = useRouter();
@@ -16,7 +17,8 @@ export default function SignUp() {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
-
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [isGoogleSigningUp, setIsGoogleSigningUp] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -26,6 +28,7 @@ export default function SignUp() {
     }
 
     try {
+      setIsSigningUp(true);
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -59,6 +62,8 @@ export default function SignUp() {
       router.push("/");
     } catch (error) {
       setError(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setIsSigningUp(false);
     }
   };
 
@@ -178,7 +183,14 @@ export default function SignUp() {
             type="submit"
             className="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
           >
-            Sign Up
+            {isSigningUp ? (
+              <>
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                Signing up...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
 
@@ -194,11 +206,25 @@ export default function SignUp() {
         </div>
 
         <button
-          onClick={() => signIn("google", { callbackUrl: "/" })}
+          onClick={() => {
+            setIsGoogleSigningUp(true);
+            signIn("google", { callbackUrl: "/" }).finally(() =>
+              setIsGoogleSigningUp(false)
+            );
+          }}
           className="w-full flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-4 py-2 rounded-md hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
         >
-          <FcGoogle size={20} />
-          Continue with Google
+          {isGoogleSigningUp ? (
+            <>
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              Signing up with Google...
+            </>
+          ) : (
+            <>
+              <FcGoogle size={20} />
+              Continue with Google
+            </>
+          )}
         </button>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
