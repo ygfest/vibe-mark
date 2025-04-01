@@ -21,7 +21,7 @@ export const generateLogo = async (base64Sketch: string) => {
     // this is the prompt and the sketch
     const result = await chatSession.sendMessage([
       {
-        text: "Convert this rough sketch into a professional logo. Include only the logo in the image, with nothing else.",
+        text: "Convert this rough sketch into a professional logo. Include only the logo in the image, with nothing else. Ensure it has a clean, modern design with no background",
       },
       { inlineData: { data: base64Sketch, mimeType: "image/png" } },
     ] as Part[]);
