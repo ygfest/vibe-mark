@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { FcGoogle } from "react-icons/fc";
 import { FormEvent, useState } from "react";
-
+import { Loader2 } from "lucide-react";
 export default function SignIn() {
   const router = useRouter();
   const [credentials, setCredentials] = useState({
@@ -84,7 +84,14 @@ export default function SignIn() {
             disabled={isSigningIn}
             className="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-md hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
-            {isSigningIn ? "Signing in..." : "Sign In"}
+            {isSigningIn ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                Signing in...
+              </div>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 
