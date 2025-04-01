@@ -20,7 +20,7 @@ function LogOutButton() {
     >
       {isSigningOut ? (
         <Loader2
-          className={`ml-2 h-4 w-4 animate-spin ${
+          className={`h-4 w-4 animate-spin ${
             theme === "dark" ? "text-zinc-50" : "text-zinc-950"
           }`}
         />
