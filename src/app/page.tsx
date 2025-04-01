@@ -3,7 +3,7 @@ import { useState } from "react";
 import DrawingCanvas from "./components/DrawingCanvas";
 import { toast } from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Sliders } from "lucide-react";
+import { Sliders } from "lucide-react";
 import LogOutButton from "@/components/log-out-button";
 
 export default function Home() {

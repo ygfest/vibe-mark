@@ -15,7 +15,7 @@ function LogOutButton() {
     >
       {" "}
       <LogOut
-        className={`${theme === "light" ? "text-zinc-950" : "text-zinc-50"}`}
+        className={`${theme === "dark" ? "text-zinc-50" : "text-zinc-950"}`}
       />
     </Button>
   );
