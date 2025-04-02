@@ -30,26 +30,6 @@ const signUp = async (data: SignUpData) => {
   return response.json();
 };
 
-const signInWithCredentials = async (
-  data: SignInData
-): Promise<SignInResponse> => {
-  const result = await signIn("credentials", {
-    email: data.email,
-    password: data.password,
-    redirect: false,
-  });
-
-  if (!result) {
-    throw new Error("No response from sign in");
-  }
-
-  if (result.error) {
-    throw new Error(result.error);
-  }
-
-  return result;
-};
-
 // React Query hooks
 export const useSignUp = () => {
   const router = useRouter();
@@ -58,10 +38,9 @@ export const useSignUp = () => {
     mutationFn: signUp,
     mutationKey: ["signup"],
     onSuccess: () => {
-      router.push("/"); // Redirect to login after successful signup
+      router.push("/");
     },
     onError: (error: Error) => {
-      // You might want to show a toast notification here
       console.error("Signup error:", error.message);
     },
   });
@@ -74,7 +53,7 @@ export const useSignOut = () => {
     mutationFn: () => signOut({ redirect: false }),
     mutationKey: ["signout"],
     onSuccess: () => {
-      router.push("/sign-in"); // Redirect to login after signout
+      router.push("/sign-in");
     },
   });
 };
