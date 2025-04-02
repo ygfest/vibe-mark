@@ -91,6 +91,49 @@ export const authOptions: NextAuthOptions = {
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
+    async signIn({ user, account, profile }) {
+      // Only proceed with OAuth sign-ins
+      if (account && account.provider !== "credentials") {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email as string },
+          include: { accounts: true },
+        });
+
+        // If we found a user with the same email
+        if (existingUser) {
+          // Check if this OAuth account is already linked
+          const existingAccount = await prisma.account.findFirst({
+            where: {
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+            },
+          });
+
+          // If account doesn't exist yet, create it and link it to the existing user
+          if (!existingAccount) {
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                refresh_token: account.refresh_token ?? null,
+                access_token: account.access_token ?? null,
+                expires_at: account.expires_at ?? null,
+                token_type: account.token_type ?? null,
+                scope: account.scope ?? null,
+                id_token: account.id_token ?? null,
+                session_state: account.session_state ?? null,
+              },
+            });
+
+            return true;
+          }
+        }
+      }
+
+      return true;
+    },
   },
   session: {
     strategy: "jwt",

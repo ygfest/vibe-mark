@@ -19,9 +19,11 @@ model User {
   lastName      String?
   email         String    @unique
   password      String?
-  provider      String  @default("credentials")
+  provider      String    @default("credentials")
   emailVerified DateTime?
   image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
 }
@@ -39,6 +41,8 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
