@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { signIn, signOut, SignInResponse } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface SignUpData {
