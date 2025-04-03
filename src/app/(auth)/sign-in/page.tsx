@@ -116,7 +116,7 @@ export default function SignIn() {
         </button>
 
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <a
             href="/sign-up"
             className="text-black dark:text-white hover:underline"
