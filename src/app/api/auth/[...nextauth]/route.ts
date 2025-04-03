@@ -16,7 +16,7 @@ interface ExtendedSession extends Session {
   };
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     // Google OAuth
