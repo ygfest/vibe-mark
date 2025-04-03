@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // Only proceed with OAuth sign-ins
       if (account && account.provider !== "credentials") {
         const existingUser = await prisma.user.findUnique({

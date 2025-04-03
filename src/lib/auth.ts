@@ -9,11 +9,6 @@ interface SignUpData {
   password: string;
 }
 
-interface SignInData {
-  email: string;
-  password: string;
-}
-
 // API functions
 const signUp = async (data: SignUpData) => {
   const response = await fetch("/api/auth/signup", {
