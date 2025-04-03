@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { Session } from "next-auth";
+import { AdapterUser } from "@auth/core/adapters";
 
 interface ExtendedSession extends Session {
   user?: {
@@ -77,12 +78,16 @@ export const authOptions: NextAuthOptions = {
     signIn: "/sign-in",
   },
   callbacks: {
-    async session({ session, user }: { session: ExtendedSession; user: any }) {
+    async session({
+      session,
+      user,
+    }: {
+      session: ExtendedSession;
+      user: AdapterUser;
+    }) {
       if (session.user) {
         session.user.id = user.id;
-        session.user.name = `${user.firstName || ""} ${
-          user.lastName || ""
-        }`.trim();
+        session.user.name = user.name || "";
       }
       return session;
     },
