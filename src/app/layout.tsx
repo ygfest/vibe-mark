@@ -4,7 +4,6 @@ import "./globals.css";
 import "@tldraw/tldraw/tldraw.css";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { QueryProvider } from "@/components/providers/query-provider";
 
 const geistSans = Geist({
