@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sliders } from "lucide-react";
 import LogOutButton from "@/components/log-out-button";
 import ExportMenu from "@/components/export-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
@@ -38,9 +39,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center p-8 min-h-screen">
-      <LogOutButton />
-      <div className="w-full max-w-4xl">
+    <div className="flex flex-col items-center min-h-screen">
+      <nav className="w-full sticky top-0 z-50 md:static md:z-auto">
+        <div className="w-full h-16 md:h-auto backdrop-blur-sm bg-background/80 md:backdrop-blur-none md:bg-transparent p-4 md:p-8 flex justify-end items-center gap-4">
+          <LogOutButton />
+          <ThemeToggle />
+        </div>
+      </nav>
+      <div className="w-full max-w-4xl px-8 pb-8">
         <h1 className="text-2xl font-bold mb-8 text-foreground text-center">
           Rough Sketch to Pro logos in Seconds
         </h1>

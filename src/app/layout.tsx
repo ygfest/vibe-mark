@@ -38,7 +38,6 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
-            <ThemeToggle />
 
             <Toaster
               position="top-right"
