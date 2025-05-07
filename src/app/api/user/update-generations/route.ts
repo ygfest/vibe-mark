@@ -38,7 +38,6 @@ export async function POST() {
     const updatedDbUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        // @ts-expect-error - generationsLeft exists in the database schema
         generationsLeft: Math.max(0, user.generationsLeft - 1),
       },
     });
