@@ -10,9 +10,15 @@ export default withAuth(
       req.nextUrl.pathname.startsWith("/sign-in") ||
       req.nextUrl.pathname.startsWith("/sign-up");
     const isAuthApi = req.nextUrl.pathname.startsWith("/api/auth");
+    const isUpgradePage = req.nextUrl.pathname.startsWith("/upgrade");
 
     // Allow all auth-related API routes to pass through
     if (isAuthApi) {
+      return null;
+    }
+
+    // Allow access to the upgrade page without authentication
+    if (isUpgradePage) {
       return null;
     }
 

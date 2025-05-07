@@ -1,12 +1,12 @@
 "use client";
 
 import { Tldraw, Editor } from "@tldraw/tldraw";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { blobToBase64 } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Sparkles } from "lucide-react";
 import { useUser } from "@/components/providers/user-provider";
-import PlanUpgradeModal from "@/components/plan-upgrade-modal";
+import { useRouter } from "next/navigation";
 
 interface DrawingCanvasProps {
   onGenerate: (sketch: string, generationsLeft: number) => void;
@@ -19,7 +19,7 @@ export default function DrawingCanvas({
 }: DrawingCanvasProps) {
   const editorRef = useRef<Editor | null>(null);
   const { user, isPlanLimitReached, setIsPlanLimitReached } = useUser();
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const router = useRouter();
 
   const handleGenerate = useCallback(async () => {
     if (!editorRef.current) return;
@@ -27,7 +27,7 @@ export default function DrawingCanvas({
     // Check for generation limits
     if (user.generationsLeft <= 0) {
       setIsPlanLimitReached(true);
-      setShowUpgradeModal(true);
+      router.push("/upgrade");
       return;
     }
 
@@ -82,10 +82,14 @@ export default function DrawingCanvas({
     } catch (error) {
       console.error("Error generating image:", error);
     }
-  }, [onGenerate, user.generationsLeft, setIsPlanLimitReached]);
+  }, [onGenerate, user.generationsLeft, setIsPlanLimitReached, router]);
+
+  const redirectToUpgrade = () => {
+    router.push("/upgrade");
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
       <div className="w-full h-[600px] border rounded-lg overflow-hidden">
         <Tldraw
           onMount={(editor) => {
@@ -106,9 +110,13 @@ export default function DrawingCanvas({
       </div>
 
       <button
-        onClick={handleGenerate}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-        disabled={isGenerating || user.generationsLeft <= 0}
+        onClick={user.generationsLeft <= 0 ? redirectToUpgrade : handleGenerate}
+        className={`w-full px-4 py-2 rounded-lg transition-colors flex items-center justify-center ${
+          user.generationsLeft <= 0
+            ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
+            : "bg-primary hover:bg-primary/90 text-primary-foreground"
+        }`}
+        disabled={isGenerating}
       >
         {isGenerating ? (
           <>
@@ -117,6 +125,7 @@ export default function DrawingCanvas({
           </>
         ) : user.generationsLeft <= 0 ? (
           <>
+            <Sparkles className="h-4 w-4 mr-2" />
             <span>Upgrade to Generate More</span>
           </>
         ) : (
@@ -142,13 +151,6 @@ export default function DrawingCanvas({
           </>
         )}
       </button>
-
-      {/* Upgrade modal when limit is reached */}
-      <PlanUpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        isOutOfGenerations={true}
-      />
     </div>
   );
 }

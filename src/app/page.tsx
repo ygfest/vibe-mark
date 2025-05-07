@@ -7,28 +7,50 @@ import { Sliders } from "lucide-react";
 import LogOutButton from "@/components/log-out-button";
 import ExportMenu from "@/components/export-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import UpgradePlanButton from "@/components/upgrade-plan-button";
+import { useUser } from "@/components/providers/user-provider";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const {
+    user,
+    decrementGenerations,
+    isPlanLimitReached,
+    setIsPlanLimitReached,
+  } = useUser();
+  const router = useRouter();
 
-  const handleGenerate = async (sketch: string, prompt?: string) => {
+  const handleGenerate = async (sketch: string, generationsLeft: number) => {
     try {
       setIsGenerating(true);
       const res = await fetch("/api/generate", {
         method: "POST",
-        body: JSON.stringify({ sketch, prompt }),
+        body: JSON.stringify({ sketch, generationsLeft }),
         headers: { "Content-Type": "application/json" },
       });
 
       if (!res.ok) {
         const errorData = await res.json();
+
+        // Handle plan limit reached
+        if (errorData.planLimitReached) {
+          setIsPlanLimitReached(true);
+          router.push("/upgrade");
+          toast.error(
+            "You've reached your generation limit. Please upgrade your plan."
+          );
+          return;
+        }
+
         toast.error("Failed to generate logo");
         throw new Error(errorData.error || "Failed to generate logo");
       }
 
       const data = await res.json();
       setLogo(data.logo);
+      decrementGenerations();
       toast.success("Logo generated successfully!");
     } catch (error) {
       console.error("Error generating logo:", error);
@@ -42,8 +64,11 @@ export default function Home() {
     <div className="flex flex-col items-center min-h-screen">
       <nav className="w-full sticky top-0 z-50 md:static md:z-auto">
         <div className="w-full h-16 md:h-auto backdrop-blur-sm bg-background/80 md:backdrop-blur-none md:bg-transparent p-4 md:p-8 flex justify-end items-center gap-4">
-          <LogOutButton />
-          <ThemeToggle />
+          <div className="flex items-center gap-4">
+            <UpgradePlanButton planType={user.planType} />
+            <LogOutButton />
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
       <div className="w-full max-w-4xl px-8 pb-8">
