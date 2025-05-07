@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { sketch, prompt, generationsLeft } = await req.json();
+    const { sketch, generationsLeft } = await req.json();
 
     if (!sketch) {
       return NextResponse.json(

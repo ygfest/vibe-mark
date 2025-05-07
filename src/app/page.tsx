@@ -14,12 +14,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const {
-    user,
-    decrementGenerations,
-    isPlanLimitReached,
-    setIsPlanLimitReached,
-  } = useUser();
+  const { user, decrementGenerations, setIsPlanLimitReached } = useUser();
   const router = useRouter();
 
   const handleGenerate = async (sketch: string, generationsLeft: number) => {

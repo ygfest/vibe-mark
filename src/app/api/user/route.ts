@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 
@@ -13,7 +13,7 @@ interface ExtendedUser {
 }
 
 // Since we haven't updated the schema yet, we'll simulate the plan type and generations left
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession();
 
@@ -36,8 +36,11 @@ export async function GET(req: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      planType: (user as any).planType || "FREE",
-      generationsLeft: (user as any).generationsLeft ?? 10,
+      planType:
+        (user as unknown as { planType?: "FREE" | "PLUS" | "PRO" }).planType ||
+        "FREE",
+      generationsLeft:
+        (user as unknown as { generationsLeft?: number }).generationsLeft ?? 10,
     };
 
     return NextResponse.json({ user: extendedUser });

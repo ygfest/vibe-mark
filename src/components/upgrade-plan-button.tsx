@@ -2,7 +2,6 @@
 
 import { Button } from "./ui/button";
 import { Sparkles } from "lucide-react";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 
 interface UpgradePlanButtonProps {
@@ -10,8 +9,6 @@ interface UpgradePlanButtonProps {
 }
 
 function UpgradePlanButton({ planType }: UpgradePlanButtonProps) {
-  const { theme } = useTheme();
-
   // Only show the upgrade button for free tier users
   if (planType !== "FREE") {
     return null;
