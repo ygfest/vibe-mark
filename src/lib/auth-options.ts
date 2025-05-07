@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
@@ -86,7 +87,7 @@ export const authOptions: NextAuthOptions = {
     }: {
       session: ExtendedSession;
       user?: AdapterUser;
-      token?: any;
+      token?: JWT;
     }) {
       // When using JWT strategy, we need to get the user info from the token
       if (token && session.user) {

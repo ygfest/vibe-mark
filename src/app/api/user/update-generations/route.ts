@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth-options";
@@ -11,10 +11,9 @@ interface ExtendedUser {
   lastName: string | null;
   planType: "FREE" | "PLUS" | "PRO";
   generationsLeft: number;
-  [key: string]: any; // Allow other properties
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -39,7 +38,7 @@ export async function POST(req: NextRequest) {
     const updatedDbUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        // @ts-ignore - generationsLeft exists in the database schema
+        // @ts-expect-error - generationsLeft exists in the database schema
         generationsLeft: Math.max(0, user.generationsLeft - 1),
       },
     });

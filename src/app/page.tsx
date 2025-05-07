@@ -44,8 +44,9 @@ export default function Home() {
         let errorData;
         try {
           errorData = await res.json();
-        } catch (e) {
+        } catch (error) {
           errorData = { error: `Server error: ${res.status}` };
+          console.error("Server error:", error);
         }
 
         if (errorData.planLimitReached) {

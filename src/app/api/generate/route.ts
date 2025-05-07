@@ -12,7 +12,6 @@ interface ExtendedUser {
   lastName: string | null;
   planType: "FREE" | "PLUS" | "PRO";
   generationsLeft: number;
-  [key: string]: any; // Allow other properties
 }
 
 // Since we don't have direct DB access to update the generation count,
@@ -85,7 +84,7 @@ export async function POST(req: NextRequest) {
     const updatedDbUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        // @ts-ignore - generationsLeft exists in the database schema
+        // @ts-expect-error - generationsLeft exists in the database schema
         generationsLeft: Math.max(0, user.generationsLeft - 1),
       },
     });
