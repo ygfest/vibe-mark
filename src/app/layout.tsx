@@ -5,6 +5,7 @@ import "@tldraw/tldraw/tldraw.css";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { UserProvider } from "@/components/providers/user-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,25 +37,27 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <UserProvider>
+              {children}
 
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                success: {
-                  style: {
-                    background: "green",
-                    color: "white",
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  success: {
+                    style: {
+                      background: "green",
+                      color: "white",
+                    },
                   },
-                },
-                error: {
-                  style: {
-                    background: "red",
-                    color: "white",
+                  error: {
+                    style: {
+                      background: "red",
+                      color: "white",
+                    },
                   },
-                },
-              }}
-            />
+                }}
+              />
+            </UserProvider>
           </ThemeProvider>
         </QueryProvider>
       </body>

@@ -1,13 +1,15 @@
 "use client";
 
 import { Tldraw, Editor } from "@tldraw/tldraw";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { blobToBase64 } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { LoaderCircle } from "lucide-react";
+import { useUser } from "@/components/providers/user-provider";
+import PlanUpgradeModal from "@/components/plan-upgrade-modal";
 
 interface DrawingCanvasProps {
-  onGenerate: (sketch: string) => void;
+  onGenerate: (sketch: string, generationsLeft: number) => void;
   isGenerating: boolean;
 }
 
@@ -16,9 +18,18 @@ export default function DrawingCanvas({
   isGenerating,
 }: DrawingCanvasProps) {
   const editorRef = useRef<Editor | null>(null);
+  const { user, isPlanLimitReached, setIsPlanLimitReached } = useUser();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleGenerate = useCallback(async () => {
     if (!editorRef.current) return;
+
+    // Check for generation limits
+    if (user.generationsLeft <= 0) {
+      setIsPlanLimitReached(true);
+      setShowUpgradeModal(true);
+      return;
+    }
 
     try {
       // Get all shapes
@@ -67,11 +78,11 @@ export default function DrawingCanvas({
       }
 
       const base64Data = await blobToBase64(blob);
-      onGenerate(base64Data);
+      onGenerate(base64Data, user.generationsLeft);
     } catch (error) {
       console.error("Error generating image:", error);
     }
-  }, [onGenerate]);
+  }, [onGenerate, user.generationsLeft, setIsPlanLimitReached]);
 
   return (
     <div className="space-y-4">
@@ -83,15 +94,30 @@ export default function DrawingCanvas({
         />
       </div>
 
+      {/* Generation counter display */}
+      <div className="flex justify-between items-center mb-2 px-1">
+        <div className="text-sm text-muted-foreground">
+          Generations left:{" "}
+          <span className="font-bold">{user.generationsLeft}</span>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Plan: <span className="font-semibold">{user.planType}</span>
+        </div>
+      </div>
+
       <button
         onClick={handleGenerate}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center justify-center"
-        disabled={isGenerating}
+        disabled={isGenerating || user.generationsLeft <= 0}
       >
         {isGenerating ? (
           <>
             <LoaderCircle className="animate-spin mr-2" />{" "}
             <span>Generating...</span>
+          </>
+        ) : user.generationsLeft <= 0 ? (
+          <>
+            <span>Upgrade to Generate More</span>
           </>
         ) : (
           <>
@@ -116,6 +142,13 @@ export default function DrawingCanvas({
           </>
         )}
       </button>
+
+      {/* Upgrade modal when limit is reached */}
+      <PlanUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        isOutOfGenerations={true}
+      />
     </div>
   );
 }

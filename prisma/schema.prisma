@@ -13,6 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PlanType {
+  FREE
+  PLUS
+  PRO
+}
+
 model User {
   id            String    @id @default(cuid())
   firstName     String?
@@ -22,6 +28,8 @@ model User {
   provider      String    @default("credentials")
   emailVerified DateTime?
   image         String?
+  planType      PlanType  @default(FREE)
+  generationsLeft Int     @default(10)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
