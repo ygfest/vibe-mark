@@ -11,9 +11,10 @@ export default withAuth(
       req.nextUrl.pathname.startsWith("/sign-up");
     const isAuthApi = req.nextUrl.pathname.startsWith("/api/auth");
     const isUpgradePage = req.nextUrl.pathname.startsWith("/upgrade");
+    const isApiRoute = req.nextUrl.pathname.startsWith("/api/");
 
-    // Allow all auth-related API routes to pass through
-    if (isAuthApi) {
+    // Allow all API routes to pass through without middleware checks
+    if (isApiRoute) {
       return null;
     }
 
@@ -54,12 +55,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (auth API routes)
+     * - api (all API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };

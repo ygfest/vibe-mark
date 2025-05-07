@@ -8,11 +8,25 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
 
+    // Properly handle unauthenticated users with a clear error
     if (!session?.user?.email) {
+      console.log("No authenticated session found");
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { sketch, generationsLeft } = await req.json();
+    // Parse the request body (handle potential parsing errors)
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error("Failed to parse request body:", error);
+      return NextResponse.json(
+        { error: "Invalid request format" },
+        { status: 400 }
+      );
+    }
+
+    const { sketch, generationsLeft } = body;
 
     if (!sketch) {
       return NextResponse.json(
@@ -35,10 +49,20 @@ export async function POST(req: NextRequest) {
     // Generate the logo
     const aiGeneratedLogo = await generateLogo(sketch);
 
-    return NextResponse.json({
-      logo: aiGeneratedLogo,
-      generationsLeft: generationsLeft - 1,
-    });
+    // Return a properly formatted JSON response with CORS headers
+    return new NextResponse(
+      JSON.stringify({
+        logo: aiGeneratedLogo,
+        generationsLeft: generationsLeft - 1,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store, no-cache",
+        },
+      }
+    );
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json(

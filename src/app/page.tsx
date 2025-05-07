@@ -20,14 +20,51 @@ export default function Home() {
   const handleGenerate = async (sketch: string, generationsLeft: number) => {
     try {
       setIsGenerating(true);
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        body: JSON.stringify({ sketch, generationsLeft }),
-        headers: { "Content-Type": "application/json" },
-      });
+
+      // Add more robust error handling for fetch
+      let res;
+      try {
+        res = await fetch("/api/generate", {
+          method: "POST",
+          body: JSON.stringify({ sketch, generationsLeft }),
+          headers: {
+            "Content-Type": "application/json",
+            // Add cache control to prevent caching
+            "Cache-Control": "no-cache, no-store",
+          },
+          // Add credentials to ensure cookies are sent
+          credentials: "include",
+          // Prevent automatic redirects
+          redirect: "manual",
+        });
+      } catch (fetchError) {
+        console.error("Fetch error:", fetchError);
+        toast.error("Network error. Please check your connection.");
+        setIsGenerating(false);
+        return;
+      }
+
+      // Handle redirect status codes (307, 302, etc.)
+      if (res.status === 307 || res.status === 302) {
+        const redirectUrl = res.headers.get("Location");
+        console.log("Redirect detected:", redirectUrl);
+
+        // If redirected to sign-in page, handle auth error
+        if (redirectUrl?.includes("sign-in")) {
+          toast.error("Authentication required. Please sign in again.");
+          router.push("/sign-in");
+          setIsGenerating(false);
+          return;
+        }
+      }
 
       if (!res.ok) {
-        const errorData = await res.json();
+        let errorData;
+        try {
+          errorData = await res.json();
+        } catch (e) {
+          errorData = { error: `Server error: ${res.status}` };
+        }
 
         // Handle plan limit reached
         if (errorData.planLimitReached) {
@@ -39,11 +76,20 @@ export default function Home() {
           return;
         }
 
-        toast.error("Failed to generate logo");
+        toast.error(errorData.error || "Failed to generate logo");
         throw new Error(errorData.error || "Failed to generate logo");
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseError) {
+        console.error("Error parsing response:", parseError);
+        toast.error("Invalid response from server");
+        setIsGenerating(false);
+        return;
+      }
+
       setLogo(data.logo);
       decrementGenerations();
       toast.success("Logo generated successfully!");
