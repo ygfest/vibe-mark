@@ -1,6 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
-import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -10,13 +7,7 @@ import bcrypt from "bcryptjs";
 import { Session } from "next-auth";
 import { AdapterUser } from "@auth/core/adapters";
 
-interface SignUpData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-}
-
+// Define types needed for auth
 interface ExtendedSession extends Session {
   user?: {
     id?: string;
@@ -25,50 +16,6 @@ interface ExtendedSession extends Session {
     image?: string | null;
   };
 }
-
-// API functions
-const signUp = async (data: SignUpData) => {
-  const response = await fetch("/api/auth/signup", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Failed to sign up");
-  }
-
-  return response.json();
-};
-
-// React Query hooks
-export const useSignUp = () => {
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: signUp,
-    mutationKey: ["signup"],
-    onSuccess: () => {
-      router.push("/");
-    },
-    onError: (error: Error) => {
-      console.error("Signup error:", error.message);
-    },
-  });
-};
-
-export const useSignOut = () => {
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: () => signOut({ redirect: false }),
-    mutationKey: ["signout"],
-    onSuccess: () => {
-      router.push("/sign-in");
-    },
-  });
-};
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -135,15 +82,30 @@ export const authOptions: NextAuthOptions = {
     async session({
       session,
       user,
+      token,
     }: {
       session: ExtendedSession;
-      user: AdapterUser;
+      user?: AdapterUser;
+      token?: any;
     }) {
-      if (session.user) {
+      // When using JWT strategy, we need to get the user info from the token
+      if (token && session.user) {
+        session.user.id = token.sub;
+      }
+
+      // When using database strategy, we get the user info directly
+      if (user && session.user) {
         session.user.id = user.id;
         session.user.name = user.name || "";
       }
+
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       if (url.startsWith("/")) return `${baseUrl}${url}`;

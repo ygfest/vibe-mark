@@ -9,7 +9,6 @@ export default withAuth(
     const isAuthPage =
       req.nextUrl.pathname.startsWith("/sign-in") ||
       req.nextUrl.pathname.startsWith("/sign-up");
-    const isAuthApi = req.nextUrl.pathname.startsWith("/api/auth");
     const isUpgradePage = req.nextUrl.pathname.startsWith("/upgrade");
     const isApiRoute = req.nextUrl.pathname.startsWith("/api/");
 

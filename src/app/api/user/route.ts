@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth-options";
 
 // Define extended user type including new fields
 interface ExtendedUser {
@@ -12,10 +13,16 @@ interface ExtendedUser {
   generationsLeft: number;
 }
 
-// Since we haven't updated the schema yet, we'll simulate the plan type and generations left
+// Extend Prisma User type for proper type safety
+interface UserWithPlan
+  extends Omit<ExtendedUser, "planType" | "generationsLeft"> {
+  planType?: "FREE" | "PLUS" | "PRO";
+  generationsLeft?: number;
+}
+
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -29,6 +36,9 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Safe type casting with proper interface
+    const userWithPlan = user as UserWithPlan;
+
     // Handle potential missing fields with defaults
     // This ensures backward compatibility during database migration
     const extendedUser: ExtendedUser = {
@@ -36,11 +46,8 @@ export async function GET() {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      planType:
-        (user as unknown as { planType?: "FREE" | "PLUS" | "PRO" }).planType ||
-        "FREE",
-      generationsLeft:
-        (user as unknown as { generationsLeft?: number }).generationsLeft ?? 10,
+      planType: userWithPlan.planType || "FREE",
+      generationsLeft: userWithPlan.generationsLeft ?? 10,
     };
 
     return NextResponse.json({ user: extendedUser });

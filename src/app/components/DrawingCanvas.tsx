@@ -9,7 +9,7 @@ import { useUser } from "@/components/providers/user-provider";
 import { useRouter } from "next/navigation";
 
 interface DrawingCanvasProps {
-  onGenerate: (sketch: string, generationsLeft: number) => void;
+  onGenerate: (sketch: string) => void;
   isGenerating: boolean;
 }
 
@@ -78,7 +78,7 @@ export default function DrawingCanvas({
       }
 
       const base64Data = await blobToBase64(blob);
-      onGenerate(base64Data, user.generationsLeft);
+      onGenerate(base64Data);
     } catch (error) {
       console.error("Error generating image:", error);
     }

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DrawingCanvas from "./components/DrawingCanvas";
 import { toast } from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,53 +10,35 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import UpgradePlanButton from "@/components/upgrade-plan-button";
 import { useUser } from "@/components/providers/user-provider";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const [logo, setLogo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { user, decrementGenerations, setIsPlanLimitReached } = useUser();
+  const { user, refreshUserData, setIsPlanLimitReached } = useUser();
   const router = useRouter();
+  const { status: sessionStatus } = useSession();
 
-  const handleGenerate = async (sketch: string, generationsLeft: number) => {
+  const handleGenerate = async (sketch: string) => {
     try {
-      setIsGenerating(true);
-
-      // Add more robust error handling for fetch
-      let res;
-      try {
-        res = await fetch("/api/generate", {
-          method: "POST",
-          body: JSON.stringify({ sketch, generationsLeft }),
-          headers: {
-            "Content-Type": "application/json",
-            // Add cache control to prevent caching
-            "Cache-Control": "no-cache, no-store",
-          },
-          // Add credentials to ensure cookies are sent
-          credentials: "include",
-          // Prevent automatic redirects
-          redirect: "manual",
-        });
-      } catch (fetchError) {
-        console.error("Fetch error:", fetchError);
-        toast.error("Network error. Please check your connection.");
-        setIsGenerating(false);
+      if (sessionStatus !== "authenticated") {
+        toast.error("Please sign in to generate logos");
+        router.push("/sign-in");
         return;
       }
 
-      // Handle redirect status codes (307, 302, etc.)
-      if (res.status === 307 || res.status === 302) {
-        const redirectUrl = res.headers.get("Location");
-        console.log("Redirect detected:", redirectUrl);
+      setIsGenerating(true);
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        body: JSON.stringify({ sketch }),
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+        },
+        credentials: "include",
+      });
 
-        // If redirected to sign-in page, handle auth error
-        if (redirectUrl?.includes("sign-in")) {
-          toast.error("Authentication required. Please sign in again.");
-          router.push("/sign-in");
-          setIsGenerating(false);
-          return;
-        }
-      }
+      console.log("Generate response status:", res.status);
 
       if (!res.ok) {
         let errorData;
@@ -66,7 +48,6 @@ export default function Home() {
           errorData = { error: `Server error: ${res.status}` };
         }
 
-        // Handle plan limit reached
         if (errorData.planLimitReached) {
           setIsPlanLimitReached(true);
           router.push("/upgrade");
@@ -76,22 +57,22 @@ export default function Home() {
           return;
         }
 
+        if (res.status === 401) {
+          toast.error("Please sign in to generate logos");
+          router.push("/sign-in");
+          return;
+        }
+
         toast.error(errorData.error || "Failed to generate logo");
         throw new Error(errorData.error || "Failed to generate logo");
       }
 
-      let data;
-      try {
-        data = await res.json();
-      } catch (parseError) {
-        console.error("Error parsing response:", parseError);
-        toast.error("Invalid response from server");
-        setIsGenerating(false);
-        return;
-      }
-
+      const data = await res.json();
       setLogo(data.logo);
-      decrementGenerations();
+
+      // Refresh user data from the server to get the updated generations count
+      await refreshUserData();
+
       toast.success("Logo generated successfully!");
     } catch (error) {
       console.error("Error generating logo:", error);
@@ -100,6 +81,14 @@ export default function Home() {
       setIsGenerating(false);
     }
   };
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      toast.error("Please sign in to use the logo generator");
+      router.push("/sign-in");
+    }
+  }, [sessionStatus, router]);
 
   return (
     <div className="flex flex-col items-center min-h-screen">

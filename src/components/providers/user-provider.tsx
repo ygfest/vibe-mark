@@ -16,6 +16,7 @@ interface UserContextType {
   decrementGenerations: () => void;
   isPlanLimitReached: boolean;
   setIsPlanLimitReached: (value: boolean) => void;
+  refreshUserData: () => Promise<void>;
 }
 
 const initialUserState = {
@@ -29,6 +30,7 @@ const UserContext = createContext<UserContextType>({
   decrementGenerations: () => {},
   isPlanLimitReached: false,
   setIsPlanLimitReached: () => {},
+  refreshUserData: async () => {},
 });
 
 export function useUser() {
@@ -41,12 +43,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isPlanLimitReached, setIsPlanLimitReached] = useState(false);
 
+  // Function to fetch the latest user data from the server
+  const refreshUserData = async () => {
+    if (status === "authenticated" && session?.user?.email) {
+      try {
+        const res = await fetch("/api/user");
+        if (res.ok) {
+          const data = await res.json();
+          setUser((prev) => ({
+            ...prev,
+            ...data.user,
+          }));
+          return data.user;
+        }
+      } catch (error) {
+        console.error("Failed to refresh user data:", error);
+      }
+    }
+  };
+
   // Function to decrement the generations count
   const decrementGenerations = () => {
+    // First update local state for immediate feedback
     setUser((prevUser) => ({
       ...prevUser,
       generationsLeft: Math.max(0, prevUser.generationsLeft - 1),
     }));
+
+    // Then refresh from server to get the actual count
+    refreshUserData();
 
     // Check if we've hit the limit
     if (user.generationsLeft <= 1) {
@@ -89,6 +114,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         decrementGenerations,
         isPlanLimitReached,
         setIsPlanLimitReached,
+        refreshUserData,
       }}
     >
       {children}
