@@ -18,7 +18,7 @@ export default function DrawingCanvas({
   isGenerating,
 }: DrawingCanvasProps) {
   const editorRef = useRef<Editor | null>(null);
-  const { user, isPlanLimitReached, setIsPlanLimitReached } = useUser();
+  const { user, setIsPlanLimitReached } = useUser();
   const router = useRouter();
 
   const handleGenerate = useCallback(async () => {
