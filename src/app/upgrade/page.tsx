@@ -85,7 +85,7 @@ export default function UpgradePage() {
             </div>
             <h3 className="text-2xl font-semibold mb-2">Plus</h3>
             <p className="text-3xl font-bold mb-2">
-              $9.99<span className="text-base font-normal">/month</span>
+              $4.99<span className="text-base font-normal">/month</span>
             </p>
             <p className="text-zinc-500 dark:text-zinc-400 mb-6">
               Perfect for regular creators
@@ -116,7 +116,7 @@ export default function UpgradePage() {
           <div className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-8 flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
             <h3 className="text-2xl font-semibold mb-2">Pro</h3>
             <p className="text-3xl font-bold mb-2">
-              $19.99<span className="text-base font-normal">/month</span>
+              $9.99<span className="text-base font-normal">/month</span>
             </p>
             <p className="text-zinc-500 dark:text-zinc-400 mb-6">
               For power users
